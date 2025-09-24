@@ -5,28 +5,33 @@ use App\Repository\InscriptionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InscriptionRepository::class)]
-#[ORM\Table(name: 'INSCRIPTIONS')]
+#[ORM\Table(name: 'inscriptions')]
 class Inscription
 {
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Sortie::class)]
+    #[ORM\ManyToOne(targetEntity: Sortie::class, inversedBy: 'inscriptions')]
     #[ORM\JoinColumn(name: 'sorties_no_sortie', referencedColumnName: 'no_sortie', nullable: false)]
     private Sortie $sortie;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Participant::class)]
+    #[ORM\ManyToOne(targetEntity: Participant::class, inversedBy: 'inscriptions')]
     #[ORM\JoinColumn(name: 'participants_no_participant', referencedColumnName: 'no_participant', nullable: false)]
     private Participant $participant;
 
     #[ORM\Column(name: 'date_inscription', type: 'datetime')]
     private \DateTimeInterface $dateInscription;
 
+    public function __construct()
+    {
+        $this->dateInscription = new \DateTimeImmutable();
+    }
+
     public function getSortie(): Sortie { return $this->sortie; }
-    public function setSortie(Sortie $v): self { $this->sortie = $v; return $this; }
+    public function setSortie(Sortie $s): self { $this->sortie = $s; return $this; }
 
     public function getParticipant(): Participant { return $this->participant; }
-    public function setParticipant(Participant $v): self { $this->participant = $v; return $this; }
+    public function setParticipant(Participant $p): self { $this->participant = $p; return $this; }
 
     public function getDateInscription(): \DateTimeInterface { return $this->dateInscription; }
-    public function setDateInscription(\DateTimeInterface $v): self { $this->dateInscription = $v; return $this; }
+    public function setDateInscription(\DateTimeInterface $d): self { $this->dateInscription = $d; return $this; }
 }

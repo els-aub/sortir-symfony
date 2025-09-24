@@ -1,21 +1,21 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
-#[ORM\Table(name: 'PARTICIPANTS')]
-#[ORM\UniqueConstraint(name: 'participants_pseudo_uk', columns: ['pseudo'])]
+#[ORM\Table(name: 'participants')]
 class Participant
 {
     #[ORM\Id]
     #[ORM\Column(name: 'no_participant', type: 'integer')]
-    #[ORM\GeneratedValue] // AUTO
+    #[ORM\GeneratedValue] // AUTO_INCREMENT en base
     private int $noParticipant;
 
-    #[ORM\Column(name: 'pseudo', type: 'string', length: 30)]
+    #[ORM\Column(name: 'pseudo', type: 'string', length: 30, unique: true)]
     private string $pseudo;
 
     #[ORM\Column(name: 'nom', type: 'string', length: 30)]
@@ -34,17 +34,26 @@ class Participant
     private string $motDePasse;
 
     #[ORM\Column(name: 'administrateur', type: 'boolean')]
-    private bool $administrateur;
+    private bool $administrateur = false;
 
     #[ORM\Column(name: 'actif', type: 'boolean')]
-    private bool $actif;
+    private bool $actif = true;
 
     #[ORM\ManyToOne(targetEntity: Site::class)]
     #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
     private Site $site;
 
+    #[ORM\OneToMany(mappedBy: 'participant', targetEntity: Inscription::class)]
+    private Collection $inscriptions;
+
+    public function __construct()
+    {
+        $this->inscriptions = new ArrayCollection();
+    }
+
+    // ---- getters / setters ----
     public function getNoParticipant(): int { return $this->noParticipant; }
-    public function setNoParticipant(int $id): self { $this->noParticipant = $id; return $this; }
+    public function setNoParticipant(int $v): self { $this->noParticipant = $v; return $this; }
 
     public function getPseudo(): string { return $this->pseudo; }
     public function setPseudo(string $v): self { $this->pseudo = $v; return $this; }
@@ -73,8 +82,25 @@ class Participant
     public function getSite(): Site { return $this->site; }
     public function setSite(Site $site): self { $this->site = $site; return $this; }
 
-    public function __toString(): string
+    /** @return Collection<int, Inscription> */
+    public function getInscriptions(): Collection { return $this->inscriptions; }
+
+    public function addInscription(Inscription $i): self
     {
-        return sprintf('%s %s (%s)', $this->prenom ?? '', $this->nom ?? '', $this->pseudo ?? '');
+        if (!$this->inscriptions->contains($i)) {
+            $this->inscriptions->add($i);
+            $i->setParticipant($this);
+        }
+        return $this;
+    }
+
+    public function removeInscription(Inscription $i): self
+    {
+        if ($this->inscriptions->removeElement($i)) {
+            if ($i->getParticipant() === $this) {
+                $i->setParticipant($this);
+            }
+        }
+        return $this;
     }
 }

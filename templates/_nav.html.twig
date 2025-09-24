@@ -1,0 +1,29 @@
+{# Nav bar unique, utilisée par tout le site #}
+<header class="header">
+    <div class="brand">
+        <a href="{{ path('app_home') }}" class="brand-link">
+            <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="logo">
+            <span class="site-title">Sort<span class="site-exclam">!</span>r</span>
+        </a>
+    </div>
+
+    <nav>
+        {# Liens visibles si user connecté #}
+        {% if app.user %}
+            <a href="{{ path('app_home') }}">Accueil</a>
+
+            {# Liens admin uniquement #}
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_ville_index') }}">Villes</a>
+                <a href="{{ path('app_site_index') }}">Sites</a>
+            {% endif %}
+
+            <a href="{{ path('app_profile_show') }}">Mon profil</a>
+            <a href="{{ path('app_logout') }}">Se déconnecter</a>
+        {% else %}
+            {# Si non connecté, on peut afficher Accueil + Connexion #}
+            <a href="{{ path('app_home') }}">Accueil</a>
+            <a href="{{ path('app_login') }}">Se connecter</a>
+        {% endif %}
+    </nav>
+</header>

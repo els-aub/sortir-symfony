@@ -1,11 +1,128 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Sortie{% endblock %}
+{% block title %}Créer une sortie{% endblock %}
 
 {% block body %}
-    <h1>Create new Sortie</h1>
+    <div class="container">
+        <h1>Créer une sortie</h1>
 
-    {{ include('sortie/_form.html.twig') }}
+        {{ form_start(form) }}
 
-    <a href="{{ path('app_sortie_index') }}">back to list</a>
+        <div class="form-grid">
+            {# Colonne gauche : infos générales #}
+            <div class="col">
+                {{ form_row(form.nom) }}
+                {{ form_row(form.dateDebut) }}
+                {{ form_row(form.dateCloture) }}
+                {{ form_row(form.nbInscriptionsMax) }}
+                {{ form_row(form.duree) }}
+                {{ form_row(form.descriptionInfos) }}
+            </div>
+
+            {# Colonne droite : Ville organisatrice (affichage), Ville (select), Lieu (select), Détails lieu readonly #}
+            <div class="col">
+                <div>
+                    <label>Ville organisatrice</label>
+                    <div class="readonly-inline">
+                        {{ app.user and app.user.site ? app.user.site.nomSite : '—' }}
+                    </div>
+                </div>
+
+                {{ form_row(form.ville) }}
+                {{ form_row(form.lieu) }}
+                {{ form_row(form.rue) }}
+                {{ form_row(form.codePostal) }}
+                {{ form_row(form.latitude) }}
+                {{ form_row(form.longitude) }}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">Enregistrer</button>
+            <button type="submit" class="btn" name="publish">Publier la sortie</button>
+            <a href="{{ path('app_sortie_index') }}" class="btn">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    {# JS :
+   - filtre les lieux par ville (si une ville est choisie)
+   - remplit automatiquement Rue/CP/Lat/Long quand on choisit un lieu
+    #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selVille = document.getElementById('sortie_ville');
+            const selLieu  = document.getElementById('sortie_lieu');
+
+            const inputRue = document.getElementById('sortie_rue');
+            const inputCP  = document.getElementById('sortie_codePostal');
+            const inputLat = document.getElementById('sortie_latitude');
+            const inputLng = document.getElementById('sortie_longitude');
+
+            // Sauvegarde des options de lieu (pour re-filtrer par ville)
+            const allLieuOptions = selLieu ? Array.from(selLieu.options) : [];
+
+            function filterLieuxByVille() {
+                if (!selVille || !selLieu) return;
+
+                const villeId = selVille.value;
+                // reset options
+                selLieu.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Sélectionner un lieu…';
+                selLieu.appendChild(placeholder);
+
+                allLieuOptions.forEach(opt => {
+                    // ignore l’option placeholder initiale (value === '')
+                    if (!opt.value) return;
+                    const optVilleId = opt.getAttribute('data-ville-id') || '';
+                    if (!villeId || optVilleId === villeId) {
+                        selLieu.appendChild(opt.cloneNode(true));
+                    }
+                });
+
+                // reset détails
+                fillLieuDetails(null);
+            }
+
+            function fillLieuDetails(option) {
+                const rue = option ? (option.getAttribute('data-rue') || '') : '';
+                const cp  = option ? (option.getAttribute('data-cp') || '') : '';
+                const lat = option ? (option.getAttribute('data-lat') || '') : '';
+                const lng = option ? (option.getAttribute('data-lng') || '') : '';
+
+                if (inputRue) inputRue.value = rue;
+                if (inputCP)  inputCP.value  = cp;
+                if (inputLat) inputLat.value = lat;
+                if (inputLng) inputLng.value = lng;
+            }
+
+            if (selVille) {
+                selVille.addEventListener('change', filterLieuxByVille);
+            }
+
+            if (selLieu) {
+                selLieu.addEventListener('change', function () {
+                    const opt = selLieu.options[selLieu.selectedIndex] || null;
+                    fillLieuDetails(opt);
+                });
+            }
+
+            // init (édition : pré-remplir les détails si un lieu est déjà sélectionné)
+            if (selLieu && selLieu.value) {
+                const opt = selLieu.options[selLieu.selectedIndex] || null;
+                fillLieuDetails(opt);
+            }
+        });
+    </script>
+
+    <style>
+        /* rendu "texte non éditable" sans cadre pour Ville organisatrice */
+        .readonly-inline {
+            padding: 6px 0;
+            color: #333;
+        }
+    </style>
 {% endblock %}

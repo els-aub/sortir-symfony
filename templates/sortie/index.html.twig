@@ -1,49 +1,103 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sortie index{% endblock %}
+{% block title %}Sorties - Sortir.com{% endblock %}
 
 {% block body %}
-    <h1>Sortie index</h1>
+    <div class="container">
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>NoSortie</th>
-                <th>Nom</th>
-                <th>DateDebut</th>
-                <th>Duree</th>
-                <th>DateCloture</th>
-                <th>NbInscriptionsMax</th>
-                <th>DescriptionInfos</th>
-                <th>EtatSortie</th>
-                <th>UrlPhoto</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for sortie in sorties %}
-            <tr>
-                <td>{{ sortie.noSortie }}</td>
-                <td>{{ sortie.nom }}</td>
-                <td>{{ sortie.dateDebut ? sortie.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ sortie.duree }}</td>
-                <td>{{ sortie.dateCloture ? sortie.dateCloture|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ sortie.nbInscriptionsMax }}</td>
-                <td>{{ sortie.descriptionInfos }}</td>
-                <td>{{ sortie.etatSortie }}</td>
-                <td>{{ sortie.urlPhoto }}</td>
-                <td>
-                    <a href="{{ path('app_sortie_show', {'noSortie': sortie.noSortie}) }}">show</a>
-                    <a href="{{ path('app_sortie_edit', {'noSortie': sortie.noSortie}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        {# ---- Carte d'information utilisateur, EN DEHORS du cadre de filtre ---- #}
+        <div class="top-right-info">
+            <aside class="user-info-card">
+                <p><strong>Date du jour :</strong> {{ "now"|date("d/m/Y") }}</p>
+                <p><strong>Participant :</strong> {{ app.user ? app.user.pseudo : "Anonyme" }}</p>
+            </aside>
+        </div>
 
-    <a href="{{ path('app_sortie_new') }}">Create new</a>
+        <section class="filters">
+            <h2 class="filters-title">Filtrer les sorties</h2>
+
+            {# === Grille 3 colonnes (gauche=form / milieu=checkboxes / droite=bouton) === #}
+            <div class="filters-grid3">
+
+                {# --------- Colonne GAUCHE : FORMULAIRE principal --------- #}
+                <div class="filters-left">
+                    <form id="filters-form" method="get" class="filters-left-form">
+                        <label for="site">Site :</label>
+                        <select name="site" id="site">
+                            <option value="">Tous les sites</option>
+                            {% for site in sites %}
+                                <option value="{{ site.id }}" {{ filters.site == site.id ? 'selected' : '' }}>
+                                    {{ site.nomSite }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="q">Le nom de la sortie contient :</label>
+                        <input type="text" name="q" id="q" value="{{ filters.q }}">
+
+                        <label>Entre</label>
+                        <div class="date-row">
+                            <input type="date" name="dateMin" value="{{ filters.dateMin|default('') }}">
+                            <span class="date-sep">et</span>
+                            <input type="date" name="dateMax" value="{{ filters.dateMax|default('') }}">
+                        </div>
+                    </form>
+                </div>
+
+                {# --------- Colonne MILIEU : CHECKBOXES --------- #}
+                <div class="filters-middle">
+                    <label class="chk"><input type="checkbox" form="filters-form" name="organisateur" {% if filters.organisateur %}checked{% endif %}> Sorties dont je suis l’organisateur/trice</label>
+                    <label class="chk"><input type="checkbox" form="filters-form" name="inscrit" {% if filters.inscrit %}checked{% endif %}> Sorties auxquelles je suis inscrit/e</label>
+                    <label class="chk"><input type="checkbox" form="filters-form" name="nonInscrit" {% if filters.nonInscrit %}checked{% endif %}> Sorties auxquelles je ne suis pas inscrit/e</label>
+                    <label class="chk"><input type="checkbox" form="filters-form" name="passees" {% if filters.passees %}checked{% endif %}> Sorties passées</label>
+                </div>
+
+                {# --------- Colonne DROITE : BOUTON uniquement --------- #}
+                <aside class="filters-right">
+                    <button type="submit" class="btn search-btn" form="filters-form">Rechercher</button>
+                </aside>
+
+            </div>
+        </section>
+
+        <section class="list">
+            <table>
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Date de la sortie</th>
+                    <th>Clôture</th>
+                    <th>Inscrits/Places</th>
+                    <th>État</th>
+                    <th>Inscrit</th>
+                    <th>Organisateur</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for s in sorties %}
+                    <tr>
+                        <td>{{ s.nom }}</td>
+                        <td>{{ s.dateDebut|date('d/m/Y H:i') }}</td>
+                        <td>{{ s.dateCloture|date('d/m/Y') }}</td>
+                        <td>{{ s.inscriptions|length }}/{{ s.nbInscriptionsMax }}</td>
+                        <td>{{ s.etat.libelle }}</td>
+                        <td>
+                            {% set participantsInscrits = s.inscriptions|map(i => i.participant) %}
+                            {% if app.user and app.user in participantsInscrits %}X{% endif %}
+                        </td>
+                        <td>{{ s.organisateur.prenom }} {{ s.organisateur.nom }}</td>
+                        <td><a href="{{ path('app_sortie_show', {id: s.noSortie}) }}">Afficher</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8">Aucune sortie.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <div class="actions actions-left">
+            <a href="{{ path('app_sortie_new') }}" class="btn">Créer une sortie</a>
+        </div>
+    </div>
 {% endblock %}

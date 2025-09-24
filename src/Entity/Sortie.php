@@ -3,14 +3,16 @@ namespace App\Entity;
 
 use App\Repository\SortieRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: SortieRepository::class)]
-#[ORM\Table(name: 'SORTIES')]
+#[ORM\Table(name: 'sorties')]
 class Sortie
 {
     #[ORM\Id]
     #[ORM\Column(name: 'no_sortie', type: 'integer')]
-    #[ORM\GeneratedValue] // AUTO
+    #[ORM\GeneratedValue] // si ta PK n'est pas AUTO en base, remplace par: #[ORM\GeneratedValue(strategy: 'NONE')]
     private int $noSortie;
 
     #[ORM\Column(name: 'nom', type: 'string', length: 30)]
@@ -31,9 +33,6 @@ class Sortie
     #[ORM\Column(name: 'descriptioninfos', type: 'string', length: 500, nullable: true)]
     private ?string $descriptionInfos = null;
 
-    #[ORM\Column(name: 'etatsortie', type: 'integer', nullable: true)]
-    private ?int $etatSortie = null;
-
     #[ORM\Column(name: 'urlPhoto', type: 'string', length: 250, nullable: true)]
     private ?string $urlPhoto = null;
 
@@ -49,8 +48,40 @@ class Sortie
     #[ORM\JoinColumn(name: 'etats_no_etat', referencedColumnName: 'no_etat', nullable: false)]
     private Etat $etat;
 
+    #[ORM\OneToMany(mappedBy: 'sortie', targetEntity: Inscription::class)]
+    private Collection $inscriptions;
+
+    public function __construct()
+    {
+        $this->inscriptions = new ArrayCollection();
+    }
+
+    // ---- inscriptions helpers ----
+    /** @return Collection<int, Inscription> */
+    public function getInscriptions(): Collection { return $this->inscriptions; }
+
+    public function addInscription(Inscription $i): self
+    {
+        if (!$this->inscriptions->contains($i)) {
+            $this->inscriptions->add($i);
+            $i->setSortie($this);
+        }
+        return $this;
+    }
+
+    public function removeInscription(Inscription $i): self
+    {
+        if ($this->inscriptions->removeElement($i)) {
+            if ($i->getSortie() === $this) {
+                // relation owning side non-nullable en base : on ne met pas null
+                $i->setSortie($this);
+            }
+        }
+        return $this;
+    }
+
+    // ---- getters/setters ----
     public function getNoSortie(): int { return $this->noSortie; }
-    public function setNoSortie(int $v): self { $this->noSortie = $v; return $this; }
 
     public function getNom(): string { return $this->nom; }
     public function setNom(string $v): self { $this->nom = $v; return $this; }
@@ -69,9 +100,6 @@ class Sortie
 
     public function getDescriptionInfos(): ?string { return $this->descriptionInfos; }
     public function setDescriptionInfos(?string $v): self { $this->descriptionInfos = $v; return $this; }
-
-    public function getEtatSortie(): ?int { return $this->etatSortie; }
-    public function setEtatSortie(?int $v): self { $this->etatSortie = $v; return $this; }
 
     public function getUrlPhoto(): ?string { return $this->urlPhoto; }
     public function setUrlPhoto(?string $v): self { $this->urlPhoto = $v; return $this; }

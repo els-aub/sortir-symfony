@@ -5,7 +5,7 @@ use App\Repository\EtatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtatRepository::class)]
-#[ORM\Table(name: 'ETATS')]
+#[ORM\Table(name: 'etats')]
 class Etat
 {
     #[ORM\Id]
