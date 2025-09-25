@@ -9,7 +9,9 @@
         <div class="top-right-info">
             <aside class="user-info-card">
                 <p><strong>Date du jour :</strong> {{ "now"|date("d/m/Y") }}</p>
-                <p><strong>Participant :</strong> {{ app.user ? app.user.pseudo : "Anonyme" }}</p>
+                <p><strong>Participant :</strong>
+                    {{ app.user and app.user.participant ? app.user.participant.pseudo : "Anonyme" }}
+                </p>
             </aside>
         </div>
 
@@ -26,7 +28,7 @@
                         <select name="site" id="site">
                             <option value="">Tous les sites</option>
                             {% for site in sites %}
-                                <option value="{{ site.id }}" {{ filters.site == site.id ? 'selected' : '' }}>
+                                <option value="{{ site.idSite }}" {{ filters.site == site.idSite ? 'selected' : '' }}>
                                     {{ site.nomSite }}
                                 </option>
                             {% endfor %}
@@ -87,7 +89,7 @@
                             {% if app.user and app.user in participantsInscrits %}X{% endif %}
                         </td>
                         <td>{{ s.organisateur.prenom }} {{ s.organisateur.nom }}</td>
-                        <td><a href="{{ path('app_sortie_show', {id: s.noSortie}) }}">Afficher</a></td>
+                        <td><a href="{{ path('app_sortie_show', {id: s.idSortie}) }}">Afficher</a></td>
                     </tr>
                 {% else %}
                     <tr><td colspan="8">Aucune sortie.</td></tr>

@@ -8,7 +8,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>NoSite</th>
+                <th>idSite</th>
                 <th>NomSite</th>
                 <th>actions</th>
             </tr>
@@ -16,11 +16,11 @@
         <tbody>
         {% for site in sites %}
             <tr>
-                <td>{{ site.noSite }}</td>
+                <td>{{ site.idSite }}</td>
                 <td>{{ site.nomSite }}</td>
                 <td>
-                    <a href="{{ path('app_site_show', {'noSite': site.noSite}) }}">show</a>
-                    <a href="{{ path('app_site_edit', {'noSite': site.noSite}) }}">edit</a>
+                    <a href="{{ path('app_site_show', {'idSite': site.idSite}) }}">show</a>
+                    <a href="{{ path('app_site_edit', {'idSite': site.idSite}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

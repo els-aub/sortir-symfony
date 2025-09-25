@@ -42,7 +42,7 @@ final class LieuController extends AbstractController
         ]);
     }
 
-    #[Route('/{noLieu}', name: 'app_lieu_show', methods: ['GET'])]
+    #[Route('/{idLieu}', name: 'app_lieu_show', methods: ['GET'])]
     public function show(Lieu $lieu): Response
     {
         return $this->render('lieu/show.html.twig', [
@@ -50,7 +50,7 @@ final class LieuController extends AbstractController
         ]);
     }
 
-    #[Route('/{noLieu}/edit', name: 'app_lieu_edit', methods: ['GET', 'POST'])]
+    #[Route('/{idLieu}/edit', name: 'app_lieu_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Lieu $lieu, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(LieuType::class, $lieu);
@@ -68,10 +68,10 @@ final class LieuController extends AbstractController
         ]);
     }
 
-    #[Route('/{noLieu}', name: 'app_lieu_delete', methods: ['POST'])]
+    #[Route('/{idLieu}', name: 'app_lieu_delete', methods: ['POST'])]
     public function delete(Request $request, Lieu $lieu, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$lieu->getNoLieu(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$lieu->getIdLieu(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($lieu);
             $entityManager->flush();
         }

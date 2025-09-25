@@ -42,7 +42,7 @@ final class SiteController extends AbstractController
         ]);
     }
 
-    #[Route('/{noSite}', name: 'app_site_show', methods: ['GET'])]
+    #[Route('/{idSite}', name: 'app_site_show', methods: ['GET'])]
     public function show(Site $site): Response
     {
         return $this->render('site/show.html.twig', [
@@ -50,7 +50,7 @@ final class SiteController extends AbstractController
         ]);
     }
 
-    #[Route('/{noSite}/edit', name: 'app_site_edit', methods: ['GET', 'POST'])]
+    #[Route('/{idSite}/edit', name: 'app_site_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Site $site, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(SiteType::class, $site);
@@ -68,10 +68,10 @@ final class SiteController extends AbstractController
         ]);
     }
 
-    #[Route('/{noSite}', name: 'app_site_delete', methods: ['POST'])]
+    #[Route('/{idSite}', name: 'app_site_delete', methods: ['POST'])]
     public function delete(Request $request, Site $site, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$site->getNoSite(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$site->getIdSite(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($site);
             $entityManager->flush();
         }

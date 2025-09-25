@@ -11,9 +11,9 @@ use Doctrine\Common\Collections\Collection;
 class Participant
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'no_participant', type: 'integer')]
+    #[ORM\Column(name: 'id_participant', type: 'integer')]
     #[ORM\GeneratedValue] // AUTO_INCREMENT en base
-    private int $noParticipant;
+    private int $idParticipant;
 
     #[ORM\Column(name: 'pseudo', type: 'string', length: 30, unique: true)]
     private string $pseudo;
@@ -40,11 +40,16 @@ class Participant
     private bool $actif = true;
 
     #[ORM\ManyToOne(targetEntity: Site::class)]
-    #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
+    #[ORM\JoinColumn(name: 'sites_id_site', referencedColumnName: 'id_site', nullable: false)]
     private Site $site;
 
     #[ORM\OneToMany(mappedBy: 'participant', targetEntity: Inscription::class)]
     private Collection $inscriptions;
+
+    // --------- Relation avec User ---------
+    #[ORM\OneToOne(inversedBy: 'participant', targetEntity: User::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function __construct()
     {
@@ -52,8 +57,8 @@ class Participant
     }
 
     // ---- getters / setters ----
-    public function getNoParticipant(): int { return $this->noParticipant; }
-    public function setNoParticipant(int $v): self { $this->noParticipant = $v; return $this; }
+    public function getIdParticipant(): int { return $this->idParticipant; }
+    public function setIdParticipant(int $v): self { $this->idParticipant = $v; return $this; }
 
     public function getPseudo(): string { return $this->pseudo; }
     public function setPseudo(string $v): self { $this->pseudo = $v; return $this; }
@@ -101,6 +106,24 @@ class Participant
                 $i->setParticipant($this);
             }
         }
+        return $this;
+    }
+
+    // ---- Relation avec User ----
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+
+        // Assurer la cohérence côté User
+        if ($user->getParticipant() !== $this) {
+            $user->setParticipant($this);
+        }
+
         return $this;
     }
 }

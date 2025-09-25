@@ -11,9 +11,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Sortie
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'no_sortie', type: 'integer')]
-    #[ORM\GeneratedValue] // si ta PK n'est pas AUTO en base, remplace par: #[ORM\GeneratedValue(strategy: 'NONE')]
-    private int $noSortie;
+    #[ORM\Column(name: 'id_sortie', type: 'integer')]
+    #[ORM\GeneratedValue]
+    private int $idSortie;
 
     #[ORM\Column(name: 'nom', type: 'string', length: 30)]
     private string $nom;
@@ -37,15 +37,15 @@ class Sortie
     private ?string $urlPhoto = null;
 
     #[ORM\ManyToOne(targetEntity: Participant::class)]
-    #[ORM\JoinColumn(name: 'organisateur', referencedColumnName: 'no_participant', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_participant', referencedColumnName: 'id_participant', nullable: false)]
     private Participant $organisateur;
 
     #[ORM\ManyToOne(targetEntity: Lieu::class)]
-    #[ORM\JoinColumn(name: 'lieux_no_lieu', referencedColumnName: 'no_lieu', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_lieu', referencedColumnName: 'id_lieu', nullable: false)]
     private Lieu $lieu;
 
     #[ORM\ManyToOne(targetEntity: Etat::class)]
-    #[ORM\JoinColumn(name: 'etats_no_etat', referencedColumnName: 'no_etat', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_etat', referencedColumnName: 'id_etat', nullable: false)]
     private Etat $etat;
 
     #[ORM\OneToMany(mappedBy: 'sortie', targetEntity: Inscription::class)]
@@ -56,7 +56,6 @@ class Sortie
         $this->inscriptions = new ArrayCollection();
     }
 
-    // ---- inscriptions helpers ----
     /** @return Collection<int, Inscription> */
     public function getInscriptions(): Collection { return $this->inscriptions; }
 
@@ -73,7 +72,6 @@ class Sortie
     {
         if ($this->inscriptions->removeElement($i)) {
             if ($i->getSortie() === $this) {
-                // relation owning side non-nullable en base : on ne met pas null
                 $i->setSortie($this);
             }
         }
@@ -81,7 +79,7 @@ class Sortie
     }
 
     // ---- getters/setters ----
-    public function getNoSortie(): int { return $this->noSortie; }
+    public function getIdSortie(): int { return $this->idSortie; }
 
     public function getNom(): string { return $this->nom; }
     public function setNom(string $v): self { $this->nom = $v; return $this; }

@@ -8,7 +8,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>NoEtat</th>
+                <th>idEtat</th>
                 <th>Libelle</th>
                 <th>actions</th>
             </tr>
@@ -16,11 +16,11 @@
         <tbody>
         {% for etat in etats %}
             <tr>
-                <td>{{ etat.noEtat }}</td>
+                <td>{{ etat.idEtat }}</td>
                 <td>{{ etat.libelle }}</td>
                 <td>
-                    <a href="{{ path('app_etat_show', {'noEtat': etat.noEtat}) }}">show</a>
-                    <a href="{{ path('app_etat_edit', {'noEtat': etat.noEtat}) }}">edit</a>
+                    <a href="{{ path('app_etat_show', {'idEtat': etat.idEtat}) }}">show</a>
+                    <a href="{{ path('app_etat_edit', {'idEtat': etat.idEtat}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

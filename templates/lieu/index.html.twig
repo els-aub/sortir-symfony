@@ -8,7 +8,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>NoLieu</th>
+                <th>idLieu</th>
                 <th>NomLieu</th>
                 <th>Rue</th>
                 <th>Latitude</th>
@@ -19,14 +19,14 @@
         <tbody>
         {% for lieu in lieus %}
             <tr>
-                <td>{{ lieu.noLieu }}</td>
+                <td>{{ lieu.idLieu }}</td>
                 <td>{{ lieu.nomLieu }}</td>
                 <td>{{ lieu.rue }}</td>
                 <td>{{ lieu.latitude }}</td>
                 <td>{{ lieu.longitude }}</td>
                 <td>
-                    <a href="{{ path('app_lieu_show', {'noLieu': lieu.noLieu}) }}">show</a>
-                    <a href="{{ path('app_lieu_edit', {'noLieu': lieu.noLieu}) }}">edit</a>
+                    <a href="{{ path('app_lieu_show', {'idLieu': lieu.idLieu}) }}">show</a>
+                    <a href="{{ path('app_lieu_edit', {'idLieu': lieu.idLieu}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

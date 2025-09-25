@@ -6,6 +6,7 @@ use App\Entity\Sortie;
 use App\Form\SortieType;
 use App\Repository\SortieRepository;
 use App\Repository\SiteRepository;
+use App\Repository\EtatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,15 +43,33 @@ class SortieController extends AbstractController
         ]);
     }
 
-
     #[Route('/new', name: 'app_sortie_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        EtatRepository $etatRepository // <-- injection du repo
+    ): Response {
         $sortie = new Sortie();
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser(); // instance de User connecté
+            $participant = $user?->getParticipant();
+
+            if ($participant === null) {
+                throw new \LogicException('Aucun Participant lié à cet utilisateur.');
+            }
+
+            $sortie->setOrganisateur($participant);
+
+            // récupérer un Etat par défaut, par ex. "Créée"
+            $etat = $etatRepository->findOneBy(['libelle' => 'Créée']);
+            if (!$etat) {
+                throw new \LogicException('Aucun Etat "Créée" trouvé en base.');
+            }
+            $sortie->setEtat($etat);
+
             $entityManager->persist($sortie);
             $entityManager->flush();
 
@@ -62,6 +81,7 @@ class SortieController extends AbstractController
             'form' => $form,
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_sortie_show', methods: ['GET'])]
     public function show(Sortie $sortie): Response
@@ -100,3 +120,5 @@ class SortieController extends AbstractController
         return $this->redirectToRoute('app_sortie_index', [], Response::HTTP_SEE_OTHER);
     }
 }
+
+

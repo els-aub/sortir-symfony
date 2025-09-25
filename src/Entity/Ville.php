@@ -9,9 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 class Ville
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'no_ville', type: 'integer')]
+    #[ORM\Column(name: 'id_ville', type: 'integer')]
     #[ORM\GeneratedValue] // AUTO
-    private int $noVille;
+    private int $idVille;
 
     #[ORM\Column(name: 'nom_ville', type: 'string', length: 30)]
     private string $nomVille;
@@ -19,8 +19,8 @@ class Ville
     #[ORM\Column(name: 'code_postal', type: 'string', length: 10)]
     private string $codePostal;
 
-    public function getNoVille(): int { return $this->noVille; }
-    public function setNoVille(int $v): self { $this->noVille = $v; return $this; }
+    public function getIdVille(): int { return $this->idVille; }
+    public function setIdVille(int $v): self { $this->idVille = $v; return $this; }
 
     public function getNomVille(): string { return $this->nomVille; }
     public function setNomVille(string $v): self { $this->nomVille = $v; return $this; }
@@ -28,5 +28,8 @@ class Ville
     public function getCodePostal(): string { return $this->codePostal; }
     public function setCodePostal(string $v): self { $this->codePostal = $v; return $this; }
 
-    public function __toString(): string { return $this->nomVille.' ('.$this->codePostal.')'; }
+    public function __toString(): string
+    {
+        return $this->nomVille.' ('.$this->codePostal.')';
+    }
 }

@@ -4,15 +4,14 @@ namespace App\Entity;
 use App\Repository\LieuRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Entity(repositoryClass: LieuRepository::class)]
 #[ORM\Table(name: 'lieux')]
 class Lieu
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'no_lieu', type: 'integer')]
-    #[ORM\GeneratedValue] // AUTO
-    private int $noLieu;
+    #[ORM\Column(name: 'id_lieu', type: 'integer')]
+    #[ORM\GeneratedValue] // AUTO_INCREMENT
+    private int $idLieu;
 
     #[ORM\Column(name: 'nom_lieu', type: 'string', length: 30)]
     private string $nomLieu;
@@ -27,11 +26,11 @@ class Lieu
     private ?float $longitude = null;
 
     #[ORM\ManyToOne(targetEntity: Ville::class)]
-    #[ORM\JoinColumn(name: 'villes_no_ville', referencedColumnName: 'no_ville', nullable: false)]
+    #[ORM\JoinColumn(name: 'villes_id_ville', referencedColumnName: 'id_ville', nullable: false)]
     private Ville $ville;
 
-    public function getNoLieu(): int { return $this->noLieu; }
-    public function setNoLieu(int $v): self { $this->noLieu = $v; return $this; }
+    public function getIdLieu(): int { return $this->idLieu; }
+    public function setIdLieu(int $v): self { $this->idLieu = $v; return $this; }
 
     public function getNomLieu(): string { return $this->nomLieu; }
     public function setNomLieu(string $v): self { $this->nomLieu = $v; return $this; }

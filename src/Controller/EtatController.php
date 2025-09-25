@@ -42,7 +42,7 @@ final class EtatController extends AbstractController
         ]);
     }
 
-    #[Route('/{noEtat}', name: 'app_etat_show', methods: ['GET'])]
+    #[Route('/{idEtat}', name: 'app_etat_show', methods: ['GET'])]
     public function show(Etat $etat): Response
     {
         return $this->render('etat/show.html.twig', [
@@ -50,7 +50,7 @@ final class EtatController extends AbstractController
         ]);
     }
 
-    #[Route('/{noEtat}/edit', name: 'app_etat_edit', methods: ['GET', 'POST'])]
+    #[Route('/{idEtat}/edit', name: 'app_etat_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Etat $etat, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(EtatType::class, $etat);
@@ -68,10 +68,10 @@ final class EtatController extends AbstractController
         ]);
     }
 
-    #[Route('/{noEtat}', name: 'app_etat_delete', methods: ['POST'])]
+    #[Route('/{idEtat}', name: 'app_etat_delete', methods: ['POST'])]
     public function delete(Request $request, Etat $etat, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$etat->getNoEtat(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$etat->getIdEtat(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($etat);
             $entityManager->flush();
         }

@@ -42,7 +42,7 @@ final class ParticipantController extends AbstractController
         ]);
     }
 
-    #[Route('/{noParticipant}', name: 'app_participant_show', methods: ['GET'])]
+    #[Route('/{idParticipant}', name: 'app_participant_show', methods: ['GET'])]
     public function show(Participant $participant): Response
     {
         return $this->render('participant/show.html.twig', [
@@ -50,7 +50,7 @@ final class ParticipantController extends AbstractController
         ]);
     }
 
-    #[Route('/{noParticipant}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
+    #[Route('/{idParticipant}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Participant $participant, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(ParticipantType::class, $participant);
@@ -68,10 +68,10 @@ final class ParticipantController extends AbstractController
         ]);
     }
 
-    #[Route('/{noParticipant}', name: 'app_participant_delete', methods: ['POST'])]
+    #[Route('/{idParticipant}', name: 'app_participant_delete', methods: ['POST'])]
     public function delete(Request $request, Participant $participant, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$participant->getNoParticipant(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$participant->getIdParticipant(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($participant);
             $entityManager->flush();
         }

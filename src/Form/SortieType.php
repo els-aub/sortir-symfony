@@ -46,7 +46,7 @@ class SortieType extends AbstractType
             // Colonne droite : ville (unmapped) + lieu (mappé) + infos du lieu (unmapped, readonly)
             ->add('ville', EntityType::class, [
                 'class' => Ville::class,
-                'choice_label' => 'nomVille',
+                // grâce au __toString dans Ville, pas besoin de préciser choice_label
                 'label' => 'Ville',
                 'mapped' => false,
                 'required' => false,
@@ -54,18 +54,17 @@ class SortieType extends AbstractType
             ])
             ->add('lieu', EntityType::class, [
                 'class' => Lieu::class,
-                'choice_label' => 'nomLieu',
+                // idem : utilise le __toString de Lieu (nomLieu)
                 'label' => 'Lieu',
                 'required' => true,
                 'placeholder' => 'Sélectionner un lieu…',
-                // Data-attributes pour auto-remplir les champs readonly (ville/rue/cp/lat/lng)
                 'choice_attr' => function (?Lieu $lieu) {
                     if (!$lieu) return [];
                     $ville = $lieu->getVille();
                     return [
-                        'data-ville-id' => $ville ? (method_exists($ville, 'getNoVille') ? $ville->getNoVille() : '') : '',
-                        'data-ville'    => $ville ? ($ville->getNomVille() ?? '') : '',
-                        'data-cp'       => $ville ? ($ville->getCodePostal() ?? '') : '',
+                        'data-ville-id' => $ville ? $ville->getIdVille() : '',
+                        'data-ville'    => $ville ? $ville->getNomVille() : '',
+                        'data-cp'       => $ville ? $ville->getCodePostal() : '',
                         'data-rue'      => $lieu->getRue() ?? '',
                         'data-lat'      => $lieu->getLatitude() ?? '',
                         'data-lng'      => $lieu->getLongitude() ?? '',
