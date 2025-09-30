@@ -17,6 +17,7 @@ final class ParticipantController extends AbstractController
     #[Route(name: 'app_participant_index', methods: ['GET'])]
     public function index(ParticipantRepository $participantRepository): Response
     {
+        // affiche la liste de tous les participants (attention ca peut etre lourd si bcp users)
         return $this->render('participant/index.html.twig', [
             'participants' => $participantRepository->findAll(),
         ]);
@@ -33,6 +34,7 @@ final class ParticipantController extends AbstractController
             $entityManager->persist($participant);
             $entityManager->flush();
 
+            // note: redirige vers index (peut-être vers "show" c’est plus logique ?)
             return $this->redirectToRoute('app_participant_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -45,6 +47,7 @@ final class ParticipantController extends AbstractController
     #[Route('/{idParticipant}', name: 'app_participant_show', methods: ['GET'])]
     public function show(Participant $participant): Response
     {
+        // test : j’avais mis var_dump($participant);die();
         return $this->render('participant/show.html.twig', [
             'participant' => $participant,
         ]);

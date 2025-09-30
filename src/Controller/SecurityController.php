@@ -12,21 +12,27 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+        // NOTE: normalement si user déjà loggé, il faudrait le redir mais
         // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
+        //     return $this->redirectToRoute('target_path'); // pas su quoi mettre
         // }
 
-        // get the login error if there is one
+        // recup erreur de connexion
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
+        // dernier pseudo tapé
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+        // fait un dump($error); pour verifier mais ca cassait la page
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error
+        ]);
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        // cette méthode est JAMAIS appelée direct
+        throw new \LogicException('normalement intercepté par firewall => donc jamais executé');
     }
 }

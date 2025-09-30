@@ -14,10 +14,10 @@ class Lieu
     private int $idLieu;
 
     #[ORM\Column(name: 'nom_lieu', type: 'string', length: 30)]
-    private string $nomLieu;
+    private string $nomLieu; // genre "Parc" etc
 
     #[ORM\Column(name: 'rue', type: 'string', length: 30, nullable: true)]
-    private ?string $rue = null;
+    private ?string $rue = null; // peut etre vide
 
     #[ORM\Column(name: 'latitude', type: 'float', nullable: true)]
     private ?float $latitude = null;
@@ -48,4 +48,11 @@ class Lieu
     public function setVille(Ville $v): self { $this->ville = $v; return $this; }
 
     public function __toString(): string { return $this->nomLieu; }
+
+    // version test
+    /*
+    public function getCoord(): string {
+        return $this->latitude . ',' . $this->longitude; // à faire/!\
+    }
+    */
 }

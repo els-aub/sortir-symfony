@@ -5,7 +5,7 @@
 {% block body %}
     <div class="container">
 
-        {# ---- Carte d'information utilisateur, EN DEHORS du cadre de filtre ---- #}
+        {# ---- Carte d'information utilisateur ---- #}
         <div class="top-right-info">
             <aside class="user-info-card">
                 <p><strong>Date du jour :</strong> {{ "now"|date("d/m/Y") }}</p>
@@ -18,10 +18,7 @@
         <section class="filters">
             <h2 class="filters-title">Filtrer les sorties</h2>
 
-            {# === Grille 3 colonnes (gauche=form / milieu=checkboxes / droite=bouton) === #}
             <div class="filters-grid3">
-
-                {# --------- Colonne GAUCHE : FORMULAIRE principal --------- #}
                 <div class="filters-left">
                     <form id="filters-form" method="get" class="filters-left-form">
                         <label for="site">Site :</label>
@@ -46,7 +43,6 @@
                     </form>
                 </div>
 
-                {# --------- Colonne MILIEU : CHECKBOXES --------- #}
                 <div class="filters-middle">
                     <label class="chk"><input type="checkbox" form="filters-form" name="organisateur" {% if filters.organisateur %}checked{% endif %}> Sorties dont je suis l’organisateur/trice</label>
                     <label class="chk"><input type="checkbox" form="filters-form" name="inscrit" {% if filters.inscrit %}checked{% endif %}> Sorties auxquelles je suis inscrit/e</label>
@@ -54,11 +50,9 @@
                     <label class="chk"><input type="checkbox" form="filters-form" name="passees" {% if filters.passees %}checked{% endif %}> Sorties passées</label>
                 </div>
 
-                {# --------- Colonne DROITE : BOUTON uniquement --------- #}
                 <aside class="filters-right">
                     <button type="submit" class="btn search-btn" form="filters-form">Rechercher</button>
                 </aside>
-
             </div>
         </section>
 
@@ -70,8 +64,8 @@
                     <th>Date de la sortie</th>
                     <th>Clôture</th>
                     <th>Inscrits/Places</th>
+                    <th>Inscrit ?</th>
                     <th>État</th>
-                    <th>Inscrit</th>
                     <th>Organisateur</th>
                     <th>Actions</th>
                 </tr>
@@ -82,14 +76,23 @@
                         <td>{{ s.nom }}</td>
                         <td>{{ s.dateDebut|date('d/m/Y H:i') }}</td>
                         <td>{{ s.dateCloture|date('d/m/Y') }}</td>
-                        <td>{{ s.inscriptions|length }}/{{ s.nbInscriptionsMax }}</td>
-                        <td>{{ s.etat.libelle }}</td>
+                        <td>{{ s.participants|length }}/{{ s.nbInscriptionsMax }}</td>
                         <td>
-                            {% set participantsInscrits = s.inscriptions|map(i => i.participant) %}
-                            {% if app.user and app.user in participantsInscrits %}X{% endif %}
+                            {% if app.user and app.user.participant in s.participants %}
+                                X
+                            {% endif %}
                         </td>
+                        <td>{{ s.etat.libelle }}</td>
                         <td>{{ s.organisateur.prenom }} {{ s.organisateur.nom }}</td>
-                        <td><a href="{{ path('app_sortie_show', {id: s.idSortie}) }}">Afficher</a></td>
+                        <td>
+                            <a href="{{ path('app_sortie_show', {idSortie: s.idSortie}) }}">Afficher</a>
+                            <strong>/</strong>
+                            <a href="{{ path('app_sortie_inscrire', {'idSortie': s.idSortie}) }}">S'inscrire</a>
+                            {% if s.etat.libelle == 'Créée' %}
+                                <strong>/</strong>
+                                <a href="{{ path('app_sortie_ouvrir', {id: s.idSortie}) }}">Ouvrir</a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% else %}
                     <tr><td colspan="8">Aucune sortie.</td></tr>

@@ -48,32 +48,37 @@ class Sortie
     #[ORM\JoinColumn(name: 'id_etat', referencedColumnName: 'id_etat', nullable: false)]
     private Etat $etat;
 
-    #[ORM\OneToMany(mappedBy: 'sortie', targetEntity: Inscription::class)]
-    private Collection $inscriptions;
+    // === Relation ManyToMany avec Participant via table "inscriptions" ===
+    #[ORM\ManyToMany(targetEntity: Participant::class, inversedBy: 'sortiesInscrites')]
+    #[ORM\JoinTable(
+        name: 'inscriptions',
+        joinColumns: [new ORM\JoinColumn(name: 'sorties_id_sortie', referencedColumnName: 'id_sortie')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'participants_id_participant', referencedColumnName: 'id_participant')]
+    )]
+    private Collection $participants; // Liste des participants inscrits
 
     public function __construct()
     {
-        $this->inscriptions = new ArrayCollection();
+        $this->participants = new ArrayCollection();
     }
 
-    /** @return Collection<int, Inscription> */
-    public function getInscriptions(): Collection { return $this->inscriptions; }
+    // ---- participants inscrits ----
+    /** @return Collection<int, Participant> */
+    public function getParticipants(): Collection { return $this->participants; }
 
-    public function addInscription(Inscription $i): self
+    public function addParticipant(Participant $p): self
     {
-        if (!$this->inscriptions->contains($i)) {
-            $this->inscriptions->add($i);
-            $i->setSortie($this);
+        if (!$this->participants->contains($p)) {
+            $this->participants->add($p);
+            $p->getSortiesInscrites()->add($this);
         }
         return $this;
     }
 
-    public function removeInscription(Inscription $i): self
+    public function removeParticipant(Participant $p): self
     {
-        if ($this->inscriptions->removeElement($i)) {
-            if ($i->getSortie() === $this) {
-                $i->setSortie($this);
-            }
+        if ($this->participants->removeElement($p)) {
+            $p->getSortiesInscrites()->removeElement($this);
         }
         return $this;
     }

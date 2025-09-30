@@ -5,6 +5,7 @@ use App\Repository\ParticipantRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
 #[ORM\Table(name: 'participants')]
@@ -16,7 +17,7 @@ class Participant
     private int $idParticipant;
 
     #[ORM\Column(name: 'pseudo', type: 'string', length: 30, unique: true)]
-    private string $pseudo;
+    private string $pseudo; // le pseudo unique de la personne
 
     #[ORM\Column(name: 'nom', type: 'string', length: 30)]
     private string $nom;
@@ -25,13 +26,10 @@ class Participant
     private string $prenom;
 
     #[ORM\Column(name: 'telephone', type: 'string', length: 15, nullable: true)]
-    private ?string $telephone = null;
+    private ?string $telephone = null; // facultatif
 
     #[ORM\Column(name: 'mail', type: 'string', length: 20)]
     private string $mail;
-
-    #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 20)]
-    private string $motDePasse;
 
     #[ORM\Column(name: 'administrateur', type: 'boolean')]
     private bool $administrateur = false;
@@ -43,8 +41,9 @@ class Participant
     #[ORM\JoinColumn(name: 'sites_id_site', referencedColumnName: 'id_site', nullable: false)]
     private Site $site;
 
-    #[ORM\OneToMany(mappedBy: 'participant', targetEntity: Inscription::class)]
-    private Collection $inscriptions;
+    // Participant -> Sorties inscrites
+    #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'participants')]
+    private Collection $sortiesInscrites;
 
     // --------- Relation avec User ---------
     #[ORM\OneToOne(inversedBy: 'participant', targetEntity: User::class, cascade: ['persist', 'remove'])]
@@ -53,8 +52,12 @@ class Participant
 
     public function __construct()
     {
-        $this->inscriptions = new ArrayCollection();
+        $this->sortiesInscrites = new ArrayCollection();
     }
+
+    // ---- sorties inscrites ----
+    /** @return Collection<int, Sortie> */
+    public function getSortiesInscrites(): Collection { return $this->sortiesInscrites; }
 
     // ---- getters / setters ----
     public function getIdParticipant(): int { return $this->idParticipant; }
@@ -75,39 +78,20 @@ class Participant
     public function getMail(): string { return $this->mail; }
     public function setMail(string $v): self { $this->mail = $v; return $this; }
 
-    public function getMotDePasse(): string { return $this->motDePasse; }
-    public function setMotDePasse(string $v): self { $this->motDePasse = $v; return $this; }
-
-    public function isAdministrateur(): bool { return $this->administrateur; }
+    public function isAdministrateur(): bool
+    {
+        return $this->administrateur === true; // j'ai mis === juste pour etre sur
+    }
     public function setAdministrateur(bool $v): self { $this->administrateur = $v; return $this; }
 
-    public function isActif(): bool { return $this->actif; }
+    public function isActif(): bool
+    {
+        return $this->actif === true;
+    }
     public function setActif(bool $v): self { $this->actif = $v; return $this; }
 
     public function getSite(): Site { return $this->site; }
     public function setSite(Site $site): self { $this->site = $site; return $this; }
-
-    /** @return Collection<int, Inscription> */
-    public function getInscriptions(): Collection { return $this->inscriptions; }
-
-    public function addInscription(Inscription $i): self
-    {
-        if (!$this->inscriptions->contains($i)) {
-            $this->inscriptions->add($i);
-            $i->setParticipant($this);
-        }
-        return $this;
-    }
-
-    public function removeInscription(Inscription $i): self
-    {
-        if ($this->inscriptions->removeElement($i)) {
-            if ($i->getParticipant() === $this) {
-                $i->setParticipant($this);
-            }
-        }
-        return $this;
-    }
 
     // ---- Relation avec User ----
     public function getUser(): ?User
@@ -126,4 +110,10 @@ class Participant
 
         return $this;
     }
+
+    /*
+    public function getFullName(): string {
+        return $this->prenom . ' ' . $this->nom; // à faire/!\
+    }
+    */
 }

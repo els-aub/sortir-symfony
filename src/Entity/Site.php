@@ -14,7 +14,7 @@ class Site
     private int $idSite;
 
     #[ORM\Column(name: 'nom_site', type: 'string', length: 30)]
-    private string $nomSite;
+    private string $nomSite; // "Nantes" "Paris" jsp
 
     public function getIdSite(): int { return $this->idSite; }
     public function setIdSite(int $v): self { $this->idSite = $v; return $this; }
@@ -23,4 +23,10 @@ class Site
     public function setNomSite(string $v): self { $this->nomSite = $v; return $this; }
 
     public function __toString(): string { return $this->nomSite; }
+
+
+    /*
+    public function g
+    }
+    */
 }

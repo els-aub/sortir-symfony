@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+    <h1>{{ app.user.participant.pseudo }}</h1>
+
+    <div style="display: flex; justify-content: center;">
+        <div class="profile-box">
+            <div class="profile-avatar">
+                {{ app.user.participant.pseudo|slice(0,1)|upper }}
+            </div>
+
+            <div class="profile-infos">
+                <div class="readonly-inline"><strong>Prénom :</strong> {{ app.user.participant.prenom }}</div>
+                <div class="readonly-inline"><strong>Nom :</strong> {{ app.user.participant.nom }}</div>
+                <div class="readonly-inline"><strong>Téléphone :</strong> {{ app.user.participant.telephone ?? '—' }}</div>
+                <div class="readonly-inline"><strong>Email :</strong> {{ app.user.participant.mail }}</div>
+                <div class="readonly-inline"><strong>Ville de rattachement :</strong> {{ app.user.participant.site.nomSite }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ path('app_home') }}" class="btn">Retour</a>
+    </div>
+{% endblock %}

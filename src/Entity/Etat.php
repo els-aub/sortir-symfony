@@ -3,18 +3,20 @@ namespace App\Entity;
 
 use App\Repository\EtatRepository;
 use Doctrine\ORM\Mapping as ORM;
+// utilité à vérifier /!\
+use DateTime;
 
 #[ORM\Entity(repositoryClass: EtatRepository::class)]
-#[ORM\Table(name: 'etats')]   // <-- pluriel pour cohérence avec les autres
+#[ORM\Table(name: 'etats')]   // ajout d'un s, jsp à vérifier
 class Etat
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'id_etat', type: 'integer')] // <-- snake_case
-    #[ORM\GeneratedValue] // AUTO_INCREMENT
+    #[ORM\Column(name: 'id_etat', type: 'integer')] //
+    #[ORM\GeneratedValue] // AUTO_INCREMENT en base
     private int $idEtat;
 
     #[ORM\Column(name: 'libelle', type: 'string', length: 30)]
-    private string $libelle;
+    private string $libelle; // un mot "annulé" "en cours" jsp
 
     // ---- getters / setters ----
     public function getIdEtat(): int
@@ -41,6 +43,13 @@ class Etat
 
     public function __toString(): string
     {
-        return $this->libelle;
+        return $this->libelle; // affiche direct le texte
     }
+
+    // --- ancienne methode essayée mais pas utile finalement ---
+    /*
+    public function getLabel(): string {
+        return strtoupper($this->libelle); // à faire/!\ ne pas garder
+    }
+    */
 }

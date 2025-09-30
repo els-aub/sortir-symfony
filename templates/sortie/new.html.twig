@@ -6,21 +6,23 @@
     <div class="container">
         <h1>Créer une sortie</h1>
 
+        {# ouverture formulaire généré par Symfony #}
         {{ form_start(form) }}
 
         <div class="form-grid">
-            {# Colonne gauche : infos générales #}
+            {# Colonne gauche : infos générales sur sortie #}
             <div class="col">
-                {{ form_row(form.nom) }}
-                {{ form_row(form.dateDebut) }}
-                {{ form_row(form.dateCloture) }}
-                {{ form_row(form.nbInscriptionsMax) }}
-                {{ form_row(form.duree) }}
-                {{ form_row(form.descriptionInfos) }}
+                {{ form_row(form.nom) }}               {# nom sortie #}
+                {{ form_row(form.dateDebut) }}         {# date - heure du début #}
+                {{ form_row(form.dateCloture) }}       {# date limite inscription #}
+                {{ form_row(form.nbInscriptionsMax) }} {# nombre max participants #}
+                {{ form_row(form.duree) }}             {# durée minutes / heures #}
+                {{ form_row(form.descriptionInfos) }}  {# texte libre description #}
             </div>
 
-            {# Colonne droite : Ville organisatrice (affichage), Ville (select), Lieu (select), Détails lieu readonly #}
+            {# Colonne droite : éléments liés au lieu #}
             <div class="col">
+                {# Ville organisatrice affichée en lecture seule = dépend du user connecté ou participant #}
                 <div>
                     <label>Ville organisatrice</label>
                     <div class="readonly-inline">
@@ -28,15 +30,17 @@
                     </div>
                 </div>
 
-                {{ form_row(form.ville) }}
-                {{ form_row(form.lieu) }}
-                {{ form_row(form.rue) }}
+                {# Sélections et détails du lieu choisi #}
+                {{ form_row(form.ville) }}      {# liste déroulante des villes dispo #}
+                {{ form_row(form.lieu) }}       {# liste déroulante des lieux (sera filtrée par ville) #}
+                {{ form_row(form.rue) }}        {# champs renseignés automatically après choix lieu #}
                 {{ form_row(form.codePostal) }}
                 {{ form_row(form.latitude) }}
                 {{ form_row(form.longitude) }}
             </div>
         </div>
 
+        {# Boutons d’action du formulaire #}
         <div class="form-actions">
             <button type="submit" class="btn">Enregistrer</button>
             <button type="submit" class="btn" name="publish">Publier la sortie</button>
@@ -46,10 +50,10 @@
         {{ form_end(form) }}
     </div>
 
-    {# JS :
-   - filtre les lieux par ville (si une ville est choisie)
-   - remplit automatiquement Rue/CP/Lat/Long quand on choisit un lieu
-    #}
+    {# === SCRIPT JS intégré ===
+       Sert à filtrer les lieux proposés selon la ville choisie,
+       et à remplir automatiquement les champs Rue/CP/Lat/Long
+       quand on sélectionne un lieu dans la liste. #}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const selVille = document.getElementById('sortie_ville');
@@ -60,33 +64,36 @@
             const inputLat = document.getElementById('sortie_latitude');
             const inputLng = document.getElementById('sortie_longitude');
 
-            // Sauvegarde des options de lieu (pour re-filtrer par ville)
+            // on garde toutes les options du select "lieu" en mémoire
             const allLieuOptions = selLieu ? Array.from(selLieu.options) : [];
 
+            // filtre les lieux pour n’afficher que ceux liés à la ville choisie
             function filterLieuxByVille() {
                 if (!selVille || !selLieu) return;
 
                 const villeId = selVille.value;
-                // reset options
+
+                // reset du select (on remet un placeholder)
                 selLieu.innerHTML = '';
                 const placeholder = document.createElement('option');
                 placeholder.value = '';
                 placeholder.textContent = 'Sélectionner un lieu…';
                 selLieu.appendChild(placeholder);
 
+                // on repasse sur toutes les options et on ajoute seulement celles qui matchent la ville
                 allLieuOptions.forEach(opt => {
-                    // ignore l’option placeholder initiale (value === '')
-                    if (!opt.value) return;
+                    if (!opt.value) return; // on saute les placeholders
                     const optVilleId = opt.getAttribute('data-ville-id') || '';
                     if (!villeId || optVilleId === villeId) {
                         selLieu.appendChild(opt.cloneNode(true));
                     }
                 });
 
-                // reset détails
+                // quand on change de ville → on efface les détails du lieu
                 fillLieuDetails(null);
             }
 
+            // remplit automatiquement Rue / CP / Lat / Lng d’après les data- du <option>
             function fillLieuDetails(option) {
                 const rue = option ? (option.getAttribute('data-rue') || '') : '';
                 const cp  = option ? (option.getAttribute('data-cp') || '') : '';
@@ -99,10 +106,12 @@
                 if (inputLng) inputLng.value = lng;
             }
 
+            // écouteurs : changement de ville → filtre lieux
             if (selVille) {
                 selVille.addEventListener('change', filterLieuxByVille);
             }
 
+            // changement de lieu → remplit les détails
             if (selLieu) {
                 selLieu.addEventListener('change', function () {
                     const opt = selLieu.options[selLieu.selectedIndex] || null;
@@ -110,7 +119,7 @@
                 });
             }
 
-            // init (édition : pré-remplir les détails si un lieu est déjà sélectionné)
+            // au chargement : si un lieu est déjà choisi (cas édition), remplir direct les champs
             if (selLieu && selLieu.value) {
                 const opt = selLieu.options[selLieu.selectedIndex] || null;
                 fillLieuDetails(opt);
@@ -119,7 +128,7 @@
     </script>
 
     <style>
-        /* rendu "texte non éditable" sans cadre pour Ville organisatrice */
+        /* petit style pour l’affichage "readonly" de la ville organisatrice */
         .readonly-inline {
             padding: 6px 0;
             color: #333;

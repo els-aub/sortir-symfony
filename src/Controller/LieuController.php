@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+// hésité à mettre use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/lieu')]
 final class LieuController extends AbstractController
@@ -17,8 +18,11 @@ final class LieuController extends AbstractController
     #[Route(name: 'app_lieu_index', methods: ['GET'])]
     public function index(LieuRepository $lieuRepository): Response
     {
+        // récupère tous les lieux (pas de pagination ici)
+        $lieux = $lieuRepository->findAll();
+
         return $this->render('lieu/index.html.twig', [
-            'lieus' => $lieuRepository->findAll(),
+            'lieus' => $lieux, // orthographe ? jsp, twig semble utiliser ca, à revoir ?
         ]);
     }
 
@@ -36,6 +40,9 @@ final class LieuController extends AbstractController
             return $this->redirectToRoute('app_lieu_index', [], Response::HTTP_SEE_OTHER);
         }
 
+        // test retour rapide
+        // return new Response("new lieu ok");
+
         return $this->render('lieu/new.html.twig', [
             'lieu' => $lieu,
             'form' => $form,
@@ -45,6 +52,7 @@ final class LieuController extends AbstractController
     #[Route('/{idLieu}', name: 'app_lieu_show', methods: ['GET'])]
     public function show(Lieu $lieu): Response
     {
+        // affiche juste un seul lieu
         return $this->render('lieu/show.html.twig', [
             'lieu' => $lieu,
         ]);
@@ -57,7 +65,7 @@ final class LieuController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $entityManager->flush(); // save direct
 
             return $this->redirectToRoute('app_lieu_index', [], Response::HTTP_SEE_OTHER);
         }

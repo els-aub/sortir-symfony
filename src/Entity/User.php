@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -17,7 +16,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    private ?string $email = null;
+    private ?string $email = null; // mail du user
 
     /**
      * @var list<string> The user roles
@@ -47,45 +46,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string) $this->email; // identifiant unique
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // garanti au moins ROLE_USER
         $roles[] = 'ROLE_USER';
+
+        // si admin => ajouter ROLE_ADMIN
+        if ($this->participant && $this->participant->isAdministrateur()) {
+            $roles[] = 'ROLE_ADMIN';
+        }
 
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    // jsp
+    /*
+    public function isAdmin(): bool {
+        return in_array('ROLE_ADMIN', $this->roles);
+    }
+    */
+
     public function getPassword(): ?string
     {
         return $this->password;
@@ -94,25 +89,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
     public function __serialize(): array
     {
         $data = (array) $this;
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
-
         return $data;
     }
 
     #[\Deprecated]
     public function eraseCredentials(): void
     {
-        // @deprecated, to be removed when upgrading to Symfony 8
+        // laissé vide
     }
 
     // -------- Relation avec Participant --------
@@ -124,12 +114,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setParticipant(Participant $participant): static
     {
         $this->participant = $participant;
-
-        // Assurer la cohérence côté Participant
         if ($participant->getUser() !== $this) {
             $participant->setUser($this);
         }
-
         return $this;
     }
 
