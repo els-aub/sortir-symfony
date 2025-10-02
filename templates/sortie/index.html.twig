@@ -72,25 +72,55 @@
                 </thead>
                 <tbody>
                 {% for s in sorties %}
-                    <tr>
+                    {% set isConnected    = app.user and app.user.participant %}
+                    {% set me             = isConnected ? app.user.participant : null %}
+                    {% set isOrganisateur = isConnected and me == s.organisateur %}
+                    {% set isInscrit      = isConnected and (me in s.participants) %}
+                    {% set isOuverte      = s.etat.libelle == 'Ouverte' %}
+                    {% set beforeDeadline = (s.dateCloture|date('U')) >= ("now"|date('U')) %}
+                    {% set hasRoom        = (s.participants|length) < s.nbInscriptionsMax %}
+                    {% set beforeStart    = (s.dateDebut|date('U')) > ("now"|date('U')) %}
+
+                    {% set rowClass = '' %}
+                    {% if s.etat.libelle == 'Créée' %}
+                        {% set rowClass = 'inactive-row' %}
+                    {% endif %}
+
+                    <tr class="{{ rowClass }}">
                         <td>{{ s.nom }}</td>
                         <td>{{ s.dateDebut|date('d/m/Y H:i') }}</td>
                         <td>{{ s.dateCloture|date('d/m/Y') }}</td>
                         <td>{{ s.participants|length }}/{{ s.nbInscriptionsMax }}</td>
+                        <td>{% if isInscrit %}X{% endif %}</td>
                         <td>
-                            {% if app.user and app.user.participant in s.participants %}
-                                X
+                            {% if s.etat.libelle == 'Créée' %}
+                                En création
+                            {% else %}
+                                {{ s.etat.libelle }}
                             {% endif %}
                         </td>
-                        <td>{{ s.etat.libelle }}</td>
-                        <td>{{ s.organisateur.prenom }} {{ s.organisateur.nom }}</td>
+                        <td>
+                            <a href="{{ path('app_participant_show', {idParticipant: s.organisateur.idParticipant}) }}">
+                                {{ s.organisateur.prenom }} {{ s.organisateur.nom }}
+                            </a>
+                        </td>
                         <td>
                             <a href="{{ path('app_sortie_show', {idSortie: s.idSortie}) }}">Afficher</a>
-                            <strong>/</strong>
-                            <a href="{{ path('app_sortie_inscrire', {'idSortie': s.idSortie}) }}">S'inscrire</a>
-                            {% if s.etat.libelle == 'Créée' %}
-                                <strong>/</strong>
+
+                            {% if isConnected %}
+                                {% if isInscrit %}
+                                    <a href="{{ path('app_sortie_desister', {'idSortie': s.idSortie}) }}">Se désister</a>
+                                {% elseif isOuverte and beforeDeadline and hasRoom %}
+                                    <a href="{{ path('app_sortie_inscrire', {'idSortie': s.idSortie}) }}">S'inscrire</a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if isOrganisateur and s.etat.libelle == 'Créée' %}
                                 <a href="{{ path('app_sortie_ouvrir', {id: s.idSortie}) }}">Ouvrir</a>
+                            {% endif %}
+
+                            {% if isConnected and (isOrganisateur or is_granted('ROLE_ADMIN')) and beforeStart and s.etat.libelle != 'Annulée' %}
+                                <a href="{{ path('app_sortie_annuler', {'idSortie': s.idSortie}) }}" style="color:#b00020; font-weight:600;">Annuler</a>
                             {% endif %}
                         </td>
                     </tr>

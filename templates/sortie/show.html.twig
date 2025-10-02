@@ -15,6 +15,13 @@
                 <div class="readonly-inline"><strong>Nombre de places :</strong> {{ sortie.nbInscriptionsMax }}</div>
                 <div class="readonly-inline"><strong>Durée :</strong> {{ sortie.duree }} minutes</div>
                 <div class="readonly-inline"><strong>Description et infos :</strong> {{ sortie.descriptionInfos }}</div>
+                <div class="readonly-inline"><strong>État :</strong> {{ sortie.etat.libelle }}</div>
+
+                {% if sortie.etat.libelle == 'Annulée' %}
+                    <div class="readonly-inline" style="color:red;">
+                        <strong>Motif d’annulation :</strong> {{ sortie.motifAnnulation }}
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Colonne DROITE : infos lieu/ville -->
@@ -40,8 +47,16 @@
                 <tbody>
                 {% for p in sortie.participants %}
                     <tr>
-                        <td>{{ p.pseudo }}</td>
-                        <td>{{ p.nom }} {{ p.prenom }}</td>
+                        <td>
+                            <a href="{{ path('app_participant_show', {idParticipant: p.idParticipant}) }}">
+                                {{ p.pseudo }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_participant_show', {idParticipant: p.idParticipant}) }}">
+                                {{ p.nom }} {{ p.prenom }}
+                            </a>
+                        </td>
                     </tr>
                 {% else %}
                     <tr><td colspan="2">Aucun participant inscrit</td></tr>
@@ -49,6 +64,17 @@
                 </tbody>
             </table>
         </div>
+
+        {# Bouton annuler visible si user est orga ou admin et si sortie pas encore commencée #}
+        {% if app.user and (app.user.participant == sortie.organisateur or is_granted('ROLE_ADMIN')) %}
+            {% if sortie.etat.libelle not in ['Annulée','Activité en cours','Activité terminée'] %}
+                <div style="margin-top:20px;">
+                    <a href="{{ path('app_sortie_annuler', {idSortie: sortie.idSortie}) }}" class="btn btn-danger">
+                        Annuler la sortie
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
 
     </div>
 {% endblock %}

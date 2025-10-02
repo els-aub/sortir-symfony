@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 
 #[Route('/participant')]
 final class ParticipantController extends AbstractController
@@ -44,18 +45,33 @@ final class ParticipantController extends AbstractController
         ]);
     }
 
-    #[Route('/{idParticipant}', name: 'app_participant_show', methods: ['GET'])]
-    public function show(Participant $participant): Response
-    {
-        // test : j’avais mis var_dump($participant);die();
-        return $this->render('participant/show.html.twig', [
+    #[Route(
+        '/{idParticipant}',
+        name: 'app_participant_show',
+        methods: ['GET'],
+        requirements: ['idParticipant' => '\d+']
+    )]
+    public function show(
+        #[MapEntity(mapping: ['idParticipant' => 'idParticipant'])] Participant $participant
+    ): Response {
+        // affiche la fiche profil d’un participant (vue profile/show.html.twig)
+        return $this->render('profile/show.html.twig', [
             'participant' => $participant,
         ]);
     }
 
-    #[Route('/{idParticipant}/edit', name: 'app_participant_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Participant $participant, EntityManagerInterface $entityManager): Response
-    {
+
+    #[Route(
+        '/{idParticipant}/edit',
+        name: 'app_participant_edit',
+        methods: ['GET', 'POST'],
+        requirements: ['idParticipant' => '\d+']
+    )]
+    public function edit(
+        Request $request,
+        #[MapEntity(mapping: ['idParticipant' => 'idParticipant'])] Participant $participant,
+        EntityManagerInterface $entityManager
+    ): Response {
         $form = $this->createForm(ParticipantType::class, $participant);
         $form->handleRequest($request);
 
@@ -71,9 +87,17 @@ final class ParticipantController extends AbstractController
         ]);
     }
 
-    #[Route('/{idParticipant}', name: 'app_participant_delete', methods: ['POST'])]
-    public function delete(Request $request, Participant $participant, EntityManagerInterface $entityManager): Response
-    {
+    #[Route(
+        '/{idParticipant}',
+        name: 'app_participant_delete',
+        methods: ['POST'],
+        requirements: ['idParticipant' => '\d+']
+    )]
+    public function delete(
+        Request $request,
+        #[MapEntity(mapping: ['idParticipant' => 'idParticipant'])] Participant $participant,
+        EntityManagerInterface $entityManager
+    ): Response {
         if ($this->isCsrfTokenValid('delete'.$participant->getIdParticipant(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($participant);
             $entityManager->flush();

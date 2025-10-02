@@ -10,17 +10,30 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-// use Symfony\Component\HttpFoundation\JsonResponse; inutile
-
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 #[Route('/site')]
+#[IsGranted('ROLE_ADMIN')] // restriction d'accès aux admins uniquement
 final class SiteController extends AbstractController
 {
     #[Route(name: 'app_site_index', methods: ['GET'])]
-    public function index(SiteRepository $siteRepository): Response
+    public function index(Request $request, SiteRepository $siteRepository): Response
     {
-        // récup tous les sites
+        $q = $request->query->get('q', '');
+
+        if ($q) {
+            $sites = $siteRepository->createQueryBuilder('s')
+                ->where('s.nomSite LIKE :q')
+                ->setParameter('q', '%'.$q.'%')
+                ->getQuery()
+                ->getResult();
+        } else {
+            $sites = $siteRepository->findAll();
+        }
+
         return $this->render('site/index.html.twig', [
-            'sites' => $siteRepository->findAll(),
+            'sites' => $sites,
+            'q' => $q,
         ]);
     }
 
@@ -35,7 +48,6 @@ final class SiteController extends AbstractController
             $entityManager->persist($site);
             $entityManager->flush();
 
-            // revoir
             return $this->redirectToRoute('app_site_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -48,7 +60,6 @@ final class SiteController extends AbstractController
     #[Route('/{idSite}', name: 'app_site_show', methods: ['GET'])]
     public function show(Site $site): Response
     {
-        // affiche un site
         return $this->render('site/show.html.twig', [
             'site' => $site,
         ]);
@@ -61,8 +72,7 @@ final class SiteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush(); // update
-
+            $entityManager->flush();
             return $this->redirectToRoute('app_site_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -72,10 +82,14 @@ final class SiteController extends AbstractController
         ]);
     }
 
+
+
     #[Route('/{idSite}', name: 'app_site_delete', methods: ['POST'])]
-    public function delete(Request $request, Site $site, EntityManagerInterface $entityManager): Response
-    {
-        // check du token sinon ca bug
+    public function delete(
+        Request $request,
+        #[MapEntity(mapping: ['idSite' => 'idSite'])] Site $site,
+        EntityManagerInterface $entityManager
+    ): Response {
         if ($this->isCsrfTokenValid('delete'.$site->getIdSite(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($site);
             $entityManager->flush();
@@ -83,4 +97,5 @@ final class SiteController extends AbstractController
 
         return $this->redirectToRoute('app_site_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

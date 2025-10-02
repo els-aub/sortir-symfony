@@ -1,37 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ville index{% endblock %}
+{% block title %}Gérer les villes{% endblock %}
 
 {% block body %}
-    <h1>Ville index</h1>
+    <div class="container">
+        <h1>Gérer les villes</h1>
 
-    <table class="table">
-        <thead>
+        {# --- Bloc filtre, comme sur la maquette --- #}
+        <section class="filters">
+            <h2 class="filters-title">Filtrer les villes</h2>
+            <form method="get" action="{{ path('app_ville_index') }}">
+                <label for="q">Le nom contient :</label>
+                <input type="text" id="q" name="q" value="{{ q ?? '' }}" placeholder="ex : HER">
+                <button type="submit">Rechercher</button>
+            </form>
+        </section>
+
+        {# --- Tableau liste --- #}
+        <table class="table">
+            <thead>
             <tr>
-                <th>idVille</th>
-                <th>NomVille</th>
-                <th>CodePostal</th>
-                <th>actions</th>
+                <th>Ville</th>
+                <th>Code postal</th>
+                <th>Actions</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for ville in villes %}
+            </thead>
+            <tbody>
+            {% for ville in villes %}
+                <tr>
+                    <td>{{ ville.nomVille }}</td>
+                    <td>{{ ville.codePostal }}</td>
+                    <td>
+                        <a href="{{ path('app_ville_edit', {'idVille': ville.idVille}) }}">Modifier</a> -
+                        <form method="post"
+                              action="{{ path('app_ville_delete', {'idVille': ville.idVille}) }}"
+                              style="display:inline-block"
+                              onsubmit="return confirm('Supprimer cette ville ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.idVille) }}">
+                            <button class="btn">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">Aucune ville trouvée</td>
+                </tr>
+            {% endfor %}
+
+            {# Ligne d’ajout (maquette : lien "Ajouter") #}
             <tr>
-                <td>{{ ville.idVille }}</td>
-                <td>{{ ville.nomVille }}</td>
-                <td>{{ ville.codePostal }}</td>
-                <td>
-                    <a href="{{ path('app_ville_show', {'idVille': ville.idVille}) }}">show</a>
-                    <a href="{{ path('app_ville_edit', {'idVille': ville.idVille}) }}">edit</a>
+                <td colspan="3">
+                    <a href="{{ path('app_ville_new') }}">Ajouter</a>
                 </td>
             </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_ville_new') }}">Create new</a>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

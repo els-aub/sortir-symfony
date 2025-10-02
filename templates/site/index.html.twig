@@ -1,35 +1,57 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Site index{% endblock %}
+{% block title %}Gérer les sites{% endblock %}
 
 {% block body %}
-    <h1>Site index</h1>
+    <div class="container">
+        <h1>Gérer les sites</h1>
 
-    <table class="table">
-        <thead>
+        {# --- Bloc filtre, comme sur la maquette --- #}
+        <section class="filters">
+            <h2 class="filters-title">Filtrer les sites</h2>
+            <form method="get" action="{{ path('app_site_index') }}">
+                <label for="q">Le nom contient :</label>
+                <input type="text" id="q" name="q" value="{{ q ?? '' }}" placeholder="">
+                <button type="submit">Rechercher</button>
+            </form>
+        </section>
+
+        {# --- Tableau liste --- #}
+        <table class="table">
+            <thead>
             <tr>
-                <th>idSite</th>
-                <th>NomSite</th>
-                <th>actions</th>
+                <th>Site</th> {# maquette : cette colonne doit s’appeler "Ville" mais c’est bien le nom du site ici #}
+                <th>Actions</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for site in sites %}
+            </thead>
+            <tbody>
+            {% for site in sites %}
+                <tr>
+                    <td>{{ site.nomSite }}</td>
+                    <td>
+                        <a href="{{ path('app_site_edit', {'idSite': site.idSite}) }}">Modifier</a> -
+                        <form method="post"
+                              action="{{ path('app_site_delete', {'idSite': site.idSite}) }}"
+                              style="display:inline-block"
+                              onsubmit="return confirm('Supprimer ce site ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ site.idSite) }}">
+                            <button class="btn">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2">Aucun site trouvé</td>
+                </tr>
+            {% endfor %}
+
+            {# Ligne d’ajout (maquette : lien "Ajouter") #}
             <tr>
-                <td>{{ site.idSite }}</td>
-                <td>{{ site.nomSite }}</td>
-                <td>
-                    <a href="{{ path('app_site_show', {'idSite': site.idSite}) }}">show</a>
-                    <a href="{{ path('app_site_edit', {'idSite': site.idSite}) }}">edit</a>
+                <td colspan="2">
+                    <a href="{{ path('app_site_new') }}">Ajouter</a>
                 </td>
             </tr>
-        {% else %}
-            <tr>
-                <td colspan="3">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_site_new') }}">Create new</a>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

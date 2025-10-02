@@ -363,3 +363,90 @@ button.btn:hover, a.btn:hover { background: var(--green-dark); border-color: var
         text-align: center;
     }
 }
+
+/* === ÉTATS DES SORTIES === */
+.inactive-row {
+    color: #777;
+    background-color: #f5f5f5;
+}
+.inactive-row a {
+    color: #aaa;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+/* === ADMIN CRUD (VILLES & SITES) === */
+
+/* conteneur du formulaire */
+.form-container {
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    padding: 15px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 6px;
+}
+
+/* labels du CRUD admin */
+.form-container label {
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* bouton générique */
+.btn {
+    display: inline-block;
+    padding: 8px 14px;
+    margin-top: 10px;
+    background: var(--green);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    border: 1px solid var(--green);
+    cursor: pointer;
+}
+.btn:hover {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+}
+
+/* section des actions (retour, delete, etc.) */
+.actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* tableaux admin (index villes/sites) */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+.table th, .table td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 14px;
+}
+.table th {
+    background: #f0f0f0;
+}
+.table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+.table td a {
+    color: var(--green);
+    font-weight: bold;
+    text-decoration: none;
+    margin-right: 6px;
+}
+.table td a:hover {
+    color: var(--green-dark);
+    text-decoration: underline;
+}

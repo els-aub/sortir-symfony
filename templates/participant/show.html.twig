@@ -1,54 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Participant{% endblock %}
+{% block title %}Profil de {{ participant.pseudo }}{% endblock %}
 
 {% block body %}
-    <h1>Participant</h1>
+    <div class="container">
+        <h1>Profil de {{ participant.pseudo }}</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>NoParticipant</th>
-                <td>{{ participant.noParticipant }}</td>
-            </tr>
-            <tr>
-                <th>Pseudo</th>
-                <td>{{ participant.pseudo }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ participant.nom }}</td>
-            </tr>
-            <tr>
-                <th>Prenom</th>
-                <td>{{ participant.prenom }}</td>
-            </tr>
-            <tr>
-                <th>Telephone</th>
-                <td>{{ participant.telephone }}</td>
-            </tr>
-            <tr>
-                <th>Mail</th>
-                <td>{{ participant.mail }}</td>
-            </tr>
-            <tr>
-                <th>MotDePasse</th>
-                <td>{{ participant.motDePasse }}</td>
-            </tr>
-            <tr>
-                <th>Administrateur</th>
-                <td>{{ participant.administrateur ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Actif</th>
-                <td>{{ participant.actif ? 'Yes' : 'No' }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div style="display: flex; justify-content: center;">
+            <div class="profile-box">
+                <div class="profile-avatar">
+                    {{ participant.pseudo|slice(0,1)|upper }}
+                </div>
 
-    <a href="{{ path('app_participant_index') }}">back to list</a>
+                <div class="profile-infos">
+                    <div class="readonly-inline"><strong>Prénom :</strong> {{ participant.prenom }}</div>
+                    <div class="readonly-inline"><strong>Nom :</strong> {{ participant.nom }}</div>
+                    <div class="readonly-inline"><strong>Téléphone :</strong> {{ participant.telephone ?? '—' }}</div>
+                    <div class="readonly-inline"><strong>Email :</strong> {{ participant.mail }}</div>
+                    <div class="readonly-inline"><strong>Ville de rattachement :</strong> {{ participant.site.nomSite }}</div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_participant_edit', {'noParticipant': participant.noParticipant}) }}">edit</a>
-
-    {{ include('participant/_delete_form.html.twig') }}
+        <div class="form-actions">
+            <a href="{{ path('app_sortie_index') }}" class="btn">Retour aux sorties</a>
+        </div>
+    </div>
 {% endblock %}

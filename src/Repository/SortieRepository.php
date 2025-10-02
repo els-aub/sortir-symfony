@@ -26,7 +26,7 @@ class SortieRepository extends ServiceEntityRepository
             ->leftJoin('s.organisateur', 'o')->addSelect('o')
             ->leftJoin('o.site', 'si')->addSelect('si')
             ->leftJoin('s.inscriptions', 'i')->addSelect('i')
-            ->orderBy('s.dateDebut', 'ASC')
+            ->orderBy('s.dateDebut', 'ASC') // tri par date de sortie (prochaines d’abord)
             ->groupBy('s.noSortie'); // évite les doublons quand plusieurs inscriptions
 
         // Filtre Site (select)

@@ -36,6 +36,12 @@ class Sortie
     #[ORM\Column(name: 'urlPhoto', type: 'string', length: 250, nullable: true)]
     private ?string $urlPhoto = null;
 
+    // === Nouveau champ : motif annulation ===
+    #[ORM\Column(name: 'motif_annulation', type: 'string', length: 255, nullable: true)]
+    private ?string $motifAnnulation = null;
+    // nullable=true car à la création il n’y a pas de motif
+    // mais dans le form d’annulation ce sera required
+
     #[ORM\ManyToOne(targetEntity: Participant::class)]
     #[ORM\JoinColumn(name: 'id_participant', referencedColumnName: 'id_participant', nullable: false)]
     private Participant $organisateur;
@@ -115,4 +121,8 @@ class Sortie
 
     public function getEtat(): Etat { return $this->etat; }
     public function setEtat(Etat $v): self { $this->etat = $v; return $this; }
+
+    // === getters/setters motifAnnulation ===
+    public function getMotifAnnulation(): ?string { return $this->motifAnnulation; }
+    public function setMotifAnnulation(?string $v): self { $this->motifAnnulation = $v; return $this; }
 }
